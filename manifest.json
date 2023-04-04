@@ -19,7 +19,7 @@
       "matches": [
         "*://turnitin.slack.com/archives/*",
         "*://calendar.google.com/calendar/*",
-        "*://turnitin.zoom.us/*"
+        "*://*.zoom.us/*"
       ],
       "js": [
         "src/content.js"
