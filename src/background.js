@@ -49,11 +49,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // is the lastActiveTabId for this window. So we will change
       // the focus to the tab previously active in this window.
       focusTab(activeBeforeLastTabId);
-      console.log('MPACFZ: Recovered the active tab before zoom.');
+      console.log('tab closer: Recovered the active tab before zoom.');
     }
   }
   
-  chrome.tabs.remove(tabId);
+  try {
+    chrome.tabs.remove(tabId);
+  } catch (e) {
+    // it's ok if the tab is gone already
+    console.log(e);
+  }
+
 });
 
-console.log(`MPACFZ: meetings-page-auto-closer-for-zoom loaded.`)
+console.log(`tab closer: meetings-page-auto-closer-for-xyz loaded.`)

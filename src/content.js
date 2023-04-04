@@ -11,10 +11,75 @@ const cssClassName_StopLink = `meetings-page-auto-closer-for-zoom-stop-link`;
 const cssClassName_SettingsMenu = `meetings-page-auto-closer-for-zoom-settings-menu`;
 const cssClassName_SettingsOption = `meetings-page-auto-closer-for-zoom-settings-option`;
 
-const localStorageKey_CountdownStartTimeMs = `b9d55053-5a15-4b65-98ce-73711e1d83f9`;
+const localStorageKey_CountdownStartTimeMs = `13E3E57A-D0C0-4FF2-ABA2-DD9FB54F66FE`;
+
+// todo change these
+// todo change these
+// todo change these
+// todo change these
+// todo change these
+
+function isHrefMatch() {
+  // google cal accept
+  // test with: https://calendar.google.com/calendar/event?action=RESPOND&eid=MTZjbmpkajNnOGszMzkwa2NubjNwbmc3bmsgZWxpbmtAdHVybml0aW4uY29t&rst=1&tok=MTkjZ2VuZ2VsQHR1cm5pdGluLmNvbTdkZWQ5MjE3Yjc0MzYxMmI4Y2YwY2FiYjA0NWFmNDg3NTczYmYzNmM&ctz=America%2FChicago&hl=en&es=1
+  if ( // https://calendar.google.com/calendar/u/ 0/r/week/2023/4/10?ctz=America/Chicago&hl=en&es=1& response_updated=1
+    window.location.href.toLowerCase().includes('https://calendar.google.com/calendar/u/')
+    && window.location.href.toLowerCase().includes('response_updated')) {
+    return true;
+  }
+  
+  // zoom meeting
+  // test: https://www.google.com/url?q=https://turnitin.zoom.us/j/97453529242?pwd%3DMEp0MUhSMmFQTHlUZEdSTS9VRmNNQT09&sa=D&source=calendar&usg=AOvVaw1oo0OynOwXoL-ndZjshAxQ
+  if ( // https://turnitin.zoom.us/j/97453529242?pwd=MEp0MUhSMmFQTHlUZEdSTS9VRmNNQT09#success
+    window.location.href.toLowerCase().includes('zoom.us') // anyone's zoom, not just turnitin
+    && window.location.href.toLowerCase().includes('#success')) {
+    return true;
+  }
+
+  // slack redirect
+  // test: https://turnitin.slack.com/archives/D01TALMB5EG/p1679957506497269
+  if ( // https://turnitin.slack.com/archives/D01TALMB5EG/p1679957506497269
+    window.location.href.toLowerCase().includes('https://turnitin.slack.com/archives')) {
+    return true;
+  }
+
+  return false;
+}
+
+function isPageTextMatch() {
+  /*
+  const pageText = document?.body?.innerText?.toLowerCase() || '';
+  // slack message
+  // https://turnitin.slack.com/archives/D01TALMB5EG/p1679957506497269
+  if (pageText.includes('redirected you to the desktop app')) {
+    return true;
+  }
+  return false;
+  */
+}
+
+function isUrlMatch() {
+  /*
+  const url = getUrl();
+  if (url.pathname && url.pathname.startsWith('/wc/leave')) {
+    return true;
+  } else {
+    return false;
+  }
+  */
+}
+
+// todo change above
+// todo change above
+// todo change above
+// todo change above
+// todo change above
+
+
+
 
 function log(text) {
-  console.log(`MPACFZ: ${text}`);
+  console.log(`tab closer: ${text}`);
 }
 
 log('loaded...');
@@ -134,57 +199,11 @@ function getUrl() {
   return new URL(window.location.href);
 }
 
-function isWebClientLeave() {
-  const url = getUrl();
-  if (url.pathname && url.pathname.startsWith('/wc/leave')) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-function isPostAttendee() {
-  const url = getUrl();
-  if (url.pathname && url.pathname.startsWith('/postattendee')) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-function isMeetingStatusSuccess() {
-  if (window.location.href.toLowerCase().includes('success')) {
-    return true;
-  }
-
-  return false;
-}
-
-function isPageTextLikeMeetingLaunch() {
-  const pageText = document?.body?.innerText?.toLowerCase() || '';
-  if (pageText.includes('click open zoom.')) {
-    return true;
-  }
-  if (pageText.includes('click launch meeting below')) {
-    return true;
-  }
-  if (pageText.includes('having issues with zoom')) {
-    return true;
-  }
-  if (pageText.includes('meeting has been launched')) {
-    return true;
-  }
-  if (pageText.includes('having issues with zoom')) {
-    return true;
-  }
-  return false;
-}
-
 function countDownToClose() {
   timeTillCloseMs -= intervalRateMs;
-  log(`TimeMs left: ${timeTillCloseMs} isPageText=${isPageTextLikeMeetingLaunch()} isSuccess=${isMeetingStatusSuccess()} isPostAttendee=${isPostAttendee()} isWebClientLeave=${isWebClientLeave()}`);
+  log(`TimeMs left: ${timeTillCloseMs} isPageText=${isPageTextMatch()} isHrefMatch=${isHrefMatch()} isUrlMatch=${isUrlMatch()}`);
 
-  if (isPageTextLikeMeetingLaunch() || isMeetingStatusSuccess() || isPostAttendee() || isWebClientLeave()) {
+  if (isPageTextMatch() || isHrefMatch() || isUrlMatch()) {
     log(`All checks good to auto close`);
   } else {
     timeTillCloseMs += intervalRateMs; // Put back the time
