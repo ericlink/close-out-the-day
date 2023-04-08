@@ -2,14 +2,14 @@ const intervalRateMs = 1000;
 const maxCountdownStartTimeMs = 35 * 1000;
 const minCountdownStartTimeMs = 5 * 1000;
 
-const cssClassName_Wrapper = `meetings-page-auto-closer-for-zoom-wrapper`;
-const cssClassName_MainPopOver = `meetings-page-auto-closer-for-zoom-main-pop-over`;
-const cssClassName_CountdownText = `meetings-page-auto-closer-for-zoom-countdown-text`;
-const cssClassName_CloseNowBtn = `meetings-page-auto-closer-for-zoom-close-now-btn`;
-const cssClassName_StopLink = `meetings-page-auto-closer-for-zoom-stop-link`;
+const cssClassName_Wrapper = `zombie-tab-closer-wrapper`;
+const cssClassName_MainPopOver = `zombie-tab-closer-main-pop-over`;
+const cssClassName_CountdownText = `zombie-tab-closer-countdown-text`;
+const cssClassName_CloseNowBtn = `zombie-tab-closer-close-now-btn`;
+const cssClassName_StopLink = `zombie-tab-closer-stop-link`;
 
-const cssClassName_SettingsMenu = `meetings-page-auto-closer-for-zoom-settings-menu`;
-const cssClassName_SettingsOption = `meetings-page-auto-closer-for-zoom-settings-option`;
+const cssClassName_SettingsMenu = `zombie-tab-closer-settings-menu`;
+const cssClassName_SettingsOption = `zombie-tab-closer-settings-option`;
 
 const localStorageKey_CountdownStartTimeMs = `13E3E57A-D0C0-4FF2-ABA2-DD9FB54F66FE`;
 
@@ -40,6 +40,15 @@ function isHrefMatch() {
   // test: https://turnitin.slack.com/archives/D01TALMB5EG/p1679957506497269
   if ( // https://turnitin.slack.com/archives/D01TALMB5EG/p1679957506497269
     window.location.href.toLowerCase().includes('https://turnitin.slack.com/archives')) {
+    return true;
+  }
+
+  // bamboo time off req
+  // test: https://mytii.bamboohr.com/anytime/pto_workflow.php?r=77805&u=3841&p=1&s=873870&h=a2f9511c64e3b8db7374d40a54a5b2133299da49ee71a43f8fab10382bb2d51b&a=approve
+  if ( 
+    window.location.href.toLowerCase().includes('https://mytii.bamboohr.com/anytime/pto_workflow.php?')
+    && window.location.href.toLowerCase().includes('=approve')
+  ) {
     return true;
   }
 

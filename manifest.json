@@ -19,7 +19,8 @@
       "matches": [
         "*://turnitin.slack.com/archives/*",
         "*://calendar.google.com/calendar/*",
-        "*://*.zoom.us/*"
+        "*://*.zoom.us/*",
+        "*://*.bamboohr.com/*"
       ],
       "js": [
         "src/content.js"
