@@ -51,6 +51,13 @@ function isHrefMatch() {
   ) {
     return true;
   }
+ 
+  // chime redirect 
+  // test: https://app.chime.aws/meetings/7162607841 
+  if ( // https://app.chime.aws/meetings/7162607841
+    window.location.href.toLowerCase().includes('https://app.chime.aws/meetings')) {
+    return true;
+  }
 
   return false;
 }

@@ -20,7 +20,8 @@
         "*://turnitin.slack.com/archives/*",
         "*://calendar.google.com/calendar/*",
         "*://*.zoom.us/*",
-        "*://*.bamboohr.com/*"
+        "*://*.bamboohr.com/*",
+        "*://*.chime.aws/*"
       ],
       "js": [
         "src/content.js"
