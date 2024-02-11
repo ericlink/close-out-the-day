@@ -27,7 +27,7 @@ function isHrefMatch() {
     && window.location.href.toLowerCase().includes('response_updated')) {
     return true;
   }
-  
+
   // zoom meeting
   // test: https://www.google.com/url?q=https://turnitin.zoom.us/j/97453529242?pwd%3DMEp0MUhSMmFQTHlUZEdSTS9VRmNNQT09&sa=D&source=calendar&usg=AOvVaw1oo0OynOwXoL-ndZjshAxQ
   if ( // https://turnitin.zoom.us/j/97453529242?pwd=MEp0MUhSMmFQTHlUZEdSTS9VRmNNQT09#success
@@ -39,21 +39,24 @@ function isHrefMatch() {
   // slack redirect
   // test: https://turnitin.slack.com/archives/D01TALMB5EG/p1679957506497269
   if ( // https://turnitin.slack.com/archives/D01TALMB5EG/p1679957506497269
-    window.location.href.toLowerCase().includes('https://turnitin.slack.com/archives')) {
+    window.location.href.toLowerCase().includes('https://turnitin.slack.com/archives')
+    || window.location.href.toLowerCase().includes('https://turnitinold.slack.com/archives')
+    || window.location.href.toLowerCase().includes('https://turnitin.enterprise.slack.com/archives')
+  ){
     return true;
   }
 
   // bamboo time off req
   // test: https://mytii.bamboohr.com/anytime/pto_workflow.php?r=77805&u=3841&p=1&s=873870&h=a2f9511c64e3b8db7374d40a54a5b2133299da49ee71a43f8fab10382bb2d51b&a=approve
-  if ( 
+  if (
     window.location.href.toLowerCase().includes('https://mytii.bamboohr.com/anytime/pto_workflow.php?')
     && window.location.href.toLowerCase().includes('=approve')
   ) {
     return true;
   }
- 
-  // chime redirect 
-  // test: https://app.chime.aws/meetings/7162607841 
+
+  // chime redirect
+  // test: https://app.chime.aws/meetings/7162607841
   if ( // https://app.chime.aws/meetings/7162607841
     window.location.href.toLowerCase().includes('https://app.chime.aws/meetings')) {
     return true;
@@ -186,7 +189,7 @@ function injectAndUpdateSettingsMenu() {
   const settingsEl = document.createElement('div');
   settingsEl.classList.add(cssClassName_SettingsMenu);
   settingsEl.innerHTML = `
-  ${trueCountdownStartTimeSec} seconds not your speed?  Try 
+  ${trueCountdownStartTimeSec} seconds not your speed?  Try
   <a class='${cssClassName_SettingsOption}'>${optionsList[0]}s</a>
   `;
   if (optionsList.length > 1) {
