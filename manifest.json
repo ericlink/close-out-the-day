@@ -17,12 +17,9 @@
     {
       "run_at": "document_start",
       "matches": [
-        "*://turnitin.slack.com/archives/*",
-        "*://turnitinold.slack.com/archives/*",
-        "*://turnitin.enterprise.slack.com/*",
+        "*://*.slack.com/archives/*",
         "*://calendar.google.com/calendar/*",
         "*://*.zoom.us/*",
-        "*://*.bamboohr.com/*",
         "*://*.chime.aws/*"
       ],
       "js": [

@@ -21,43 +21,28 @@ const localStorageKey_CountdownStartTimeMs = `13E3E57A-D0C0-4FF2-ABA2-DD9FB54F66
 
 function isHrefMatch() {
   // google cal accept
-  // test with: https://calendar.google.com/calendar/event?action=RESPOND&eid=MTZjbmpkajNnOGszMzkwa2NubjNwbmc3bmsgZWxpbmtAdHVybml0aW4uY29t&rst=1&tok=MTkjZ2VuZ2VsQHR1cm5pdGluLmNvbTdkZWQ5MjE3Yjc0MzYxMmI4Y2YwY2FiYjA0NWFmNDg3NTczYmYzNmM&ctz=America%2FChicago&hl=en&es=1
-  if ( // https://calendar.google.com/calendar/u/ 0/r/week/2023/4/10?ctz=America/Chicago&hl=en&es=1& response_updated=1
+  if (
     window.location.href.toLowerCase().includes('https://calendar.google.com/calendar/u/')
     && window.location.href.toLowerCase().includes('response_updated')) {
     return true;
   }
 
   // zoom meeting
-  // test: https://www.google.com/url?q=https://turnitin.zoom.us/j/97453529242?pwd%3DMEp0MUhSMmFQTHlUZEdSTS9VRmNNQT09&sa=D&source=calendar&usg=AOvVaw1oo0OynOwXoL-ndZjshAxQ
-  if ( // https://turnitin.zoom.us/j/97453529242?pwd=MEp0MUhSMmFQTHlUZEdSTS9VRmNNQT09#success
-    window.location.href.toLowerCase().includes('zoom.us') // anyone's zoom, not just turnitin
+  if (
+    window.location.href.toLowerCase().includes('zoom.us')
     && window.location.href.toLowerCase().includes('#success')) {
     return true;
   }
 
   // slack redirect
-  // test: https://turnitin.slack.com/archives/D01TALMB5EG/p1679957506497269
-  if ( // https://turnitin.slack.com/archives/D01TALMB5EG/p1679957506497269
-    window.location.href.toLowerCase().includes('https://turnitin.slack.com/archives')
-    || window.location.href.toLowerCase().includes('https://turnitinold.slack.com/archives')
-    || window.location.href.toLowerCase().includes('https://turnitin.enterprise.slack.com/archives')
+  if (
+    window.location.href.toLowerCase().includes('.slack.com/archives')
   ){
     return true;
   }
 
-  // bamboo time off req
-  // test: https://mytii.bamboohr.com/anytime/pto_workflow.php?r=77805&u=3841&p=1&s=873870&h=a2f9511c64e3b8db7374d40a54a5b2133299da49ee71a43f8fab10382bb2d51b&a=approve
-  if (
-    window.location.href.toLowerCase().includes('https://mytii.bamboohr.com/anytime/pto_workflow.php?')
-    && window.location.href.toLowerCase().includes('=approve')
-  ) {
-    return true;
-  }
-
   // chime redirect
-  // test: https://app.chime.aws/meetings/7162607841
-  if ( // https://app.chime.aws/meetings/7162607841
+  if (
     window.location.href.toLowerCase().includes('https://app.chime.aws/meetings')) {
     return true;
   }
@@ -69,7 +54,6 @@ function isPageTextMatch() {
   /*
   const pageText = document?.body?.innerText?.toLowerCase() || '';
   // slack message
-  // https://turnitin.slack.com/archives/D01TALMB5EG/p1679957506497269
   if (pageText.includes('redirected you to the desktop app')) {
     return true;
   }
