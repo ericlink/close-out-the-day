@@ -41,9 +41,9 @@ function isHrefMatch() {
     return true;
   }
 
-  // chime redirect
+  // all the chimes redirect
   if (
-    window.location.href.toLowerCase().includes('https://app.chime.aws/meetings')) {
+    window.location.href.toLowerCase().includes('chime.aws')) {
     return true;
   }
 
