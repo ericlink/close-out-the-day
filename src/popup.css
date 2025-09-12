@@ -40,6 +40,89 @@ header p {
   color: #6b7280;
 }
 
+.source-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.source-selection h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.radio-option:hover {
+  border-color: #4f46e5;
+  background: #f8faff;
+}
+
+.radio-option input[type="radio"] {
+  display: none;
+}
+
+.radio-custom {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.radio-option input[type="radio"]:checked + .radio-custom {
+  border-color: #4f46e5;
+  background: #4f46e5;
+}
+
+.radio-option input[type="radio"]:checked + .radio-custom::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+}
+
+.radio-option input[type="radio"]:checked ~ .radio-icon,
+.radio-option input[type="radio"]:checked ~ .radio-label {
+  color: #4f46e5;
+}
+
+.radio-icon {
+  font-size: 16px;
+  transition: color 0.2s ease;
+}
+
+.radio-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  transition: color 0.2s ease;
+}
+
 .controls {
   display: flex;
   gap: 8px;

@@ -12,7 +12,25 @@
       <h1>📋 Close Out The Day</h1>
       <p>Export your Slack saved items & starred emails</p>
     </header>
-    
+   <!-- choose either slack saved items or starred emails--> 
+    <div class="source-selection">
+      <h3>Select Data Source</h3>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" name="dataSource" value="slack" checked>
+          <span class="radio-custom"></span>
+          <span class="radio-icon">🔍</span>
+          <span class="radio-label">Slack Saved Items</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="dataSource" value="email">
+          <span class="radio-custom"></span>
+          <span class="radio-icon">📝</span>
+          <span class="radio-label">Starred Emails</span>
+        </label>
+      </div>
+    </div>
+
     <div class="controls">
       <button id="extractBtn" class="btn-primary">
         <span class="btn-icon">🔍</span>

@@ -11,26 +11,52 @@ class PopupController {
         this.statusIcon = document.querySelector('.status-icon');
         this.itemCount = document.getElementById('itemCount');
         this.outputTitle = document.getElementById('outputTitle');
+        this.dataSourceRadios = document.querySelectorAll('input[name="dataSource"]');
         
         this.currentFormat = 'markdown'; // Track current output format
+        this.currentDataSource = 'slack'; // Track current data source
         
         this.initEventListeners();
-        this.checkSlackTab();
+        this.checkActiveTab();
     }
 
     initEventListeners() {
         this.extractBtn.addEventListener('click', () => this.extractSavedItems('markdown'));
         this.extractOtlBtn.addEventListener('click', () => this.extractSavedItems('otl'));
         this.copyBtn.addEventListener('click', () => this.copyToClipboard());
+        
+        // Listen for data source changes
+        this.dataSourceRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.currentDataSource = e.target.value;
+                this.checkActiveTab();
+            });
+        });
     }
 
-    async checkSlackTab() {
+    async checkActiveTab() {
         try {
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            if (!tab.url.includes('app.slack.com')) {
-                this.updateStatus('⚠️', 'Please navigate to Slack to extract saved items', 'error');
-                this.extractBtn.disabled = true;
-                this.extractOtlBtn.disabled = true;
+            
+            if (this.currentDataSource === 'slack') {
+                if (!tab.url.includes('app.slack.com')) {
+                    // naviagate here https://app.slack.com/client/T053ZFRG5/later
+                    chrome.tabs.update({ url: 'https://app.slack.com/client/T053ZFRG5/later' });
+                } else {
+                    this.updateStatus('ℹ️', 'Choose an extraction format to begin', 'info');
+                    this.extractBtn.disabled = false;
+                    this.extractOtlBtn.disabled = false;
+                }
+            } else if (this.currentDataSource === 'email') {
+                // For email extraction, check for Gmail or other email providers
+                if (!tab.url.includes('mail.google.com') && !tab.url.includes('outlook.com')) {
+                    // naviagate here https://mail.google.com/mail/u/0/#starred
+                    chrome.tabs.update({ url: 'https://mail.google.com/mail/u/0/#starred' });
+                } else {
+                    this.updateStatus('⚠️', 'Email extraction not yet implemented', 'error');
+                    this.extractBtn.disabled = true;
+                    this.extractOtlBtn.disabled = true;
+                }
             }
         } catch (error) {
             console.error('Error checking tab:', error);
@@ -50,38 +76,25 @@ class PopupController {
             this.currentFormat = format;
             
             const formatName = format === 'otl' ? 'OTL' : 'Markdown';
-            this.updateStatus('⏳', `Extracting saved items to ${formatName}...`, 'loading');
+            const dataSourceName = this.currentDataSource === 'slack' ? 'Slack saved items' : 'starred emails';
+            this.updateStatus('⏳', `Extracting ${dataSourceName} to ${formatName}...`, 'loading');
             this.itemCount.textContent = '0 items';
 
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             
-            // Set up progress listener before injection
-            await this.setupProgressListener(tab.id);
-            
-            // Inject and run the extractor script
-            const results = await chrome.scripting.executeScript({
-                target: { tabId: tab.id },
-                files: ['src/slack-extractor-injected.js']
-            });
-
-            if (results && results[0] && results[0].result) {
-                const extractionResults = results[0].result;
-                const bookmarks = extractionResults.uniqueData || extractionResults; // Handle both new and old format
-                let output;
+            if (this.currentDataSource === 'slack') {
+                // Set up progress listener before injection
+                await this.setupProgressListener(tab.id);
                 
-                if (format === 'otl') {
-                    // Use the pre-formatted output if available, otherwise convert
-                    output = extractionResults.formattedOutput || this.convertToOtl(bookmarks);
-                    this.outputTitle.textContent = 'OTL Output';
-                } else {
-                    output = this.convertToMarkdown(bookmarks);
-                    this.outputTitle.textContent = 'Markdown Output';
-                }
+                // Inject and run the extractor script
+                const results = await chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    files: ['src/slack-extractor-injected.js']
+                });
                 
-                this.displayResults(output, bookmarks.length - 1); // -1 for header row
-                this.updateStatus('✅', `Extraction completed successfully in ${formatName} format!`, 'success');
-            } else {
-                throw new Error('No results returned from extractor');
+                await this.handleExtractionResults(results, format, formatName);
+            } else if (this.currentDataSource === 'email') {
+                throw new Error('Email extraction not yet implemented');
             }
         } catch (error) {
             console.error('Extraction error:', error);
@@ -92,6 +105,27 @@ class PopupController {
         }
     }
 
+    async handleExtractionResults(results, format, formatName) {
+        if (results && results[0] && results[0].result) {
+            const extractionResults = results[0].result;
+            const bookmarks = extractionResults.uniqueData || extractionResults; // Handle both new and old format
+            let output;
+            
+            if (format === 'otl') {
+                // Use the pre-formatted output if available, otherwise convert
+                output = extractionResults.formattedOutput || this.convertToOtl(bookmarks);
+                this.outputTitle.textContent = 'OTL Output';
+            } else {
+                output = this.convertToMarkdown(bookmarks);
+                this.outputTitle.textContent = 'Markdown Output';
+            }
+            
+            this.displayResults(output, bookmarks.length - 1); // -1 for header row
+            this.updateStatus('✅', `Extraction completed successfully in ${formatName} format!`, 'success');
+        } else {
+            throw new Error('No results returned from extractor');
+        }
+    }
 
     convertToOtl(bookmarks) {
         if (!bookmarks || bookmarks.length <= 1) {
