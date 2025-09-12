@@ -61,11 +61,13 @@ class PopupController {
             });
 
             if (results && results[0] && results[0].result) {
-                const bookmarks = results[0].result;
+                const extractionResults = results[0].result;
+                const bookmarks = extractionResults.uniqueData || extractionResults; // Handle both new and old format
                 let output;
                 
                 if (format === 'otl') {
-                    output = this.convertToOtl(bookmarks);
+                    // Use the pre-formatted output if available, otherwise convert
+                    output = extractionResults.formattedOutput || this.convertToOtl(bookmarks);
                     this.outputTitle.textContent = 'OTL Output';
                 } else {
                     output = this.convertToMarkdown(bookmarks);
