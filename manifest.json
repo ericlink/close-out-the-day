@@ -10,8 +10,9 @@
     "128": "icons/icon-128.png"
   },
   "permissions": [
-    "activeTab",
-    "scripting"
+    "scripting",
+    "tabs",
+    "activeTab"
   ],
   "action": {
     "default_title": "Close out the day",
@@ -38,5 +39,9 @@
         "src/content.css"
       ]
     }
+  ],
+  "host_permissions": [
+    "*://app.slack.com/*",
+    "*://mail.google.com/*"
   ]
 }

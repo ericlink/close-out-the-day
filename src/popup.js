@@ -48,14 +48,14 @@ class PopupController {
                     this.extractOtlBtn.disabled = false;
                 }
             } else if (this.currentDataSource === 'email') {
-                // For email extraction, check for Gmail or other email providers
-                if (!tab.url.includes('mail.google.com') && !tab.url.includes('outlook.com')) {
-                    // naviagate here https://mail.google.com/mail/u/0/#starred
+                // For email extraction, check for Gmail
+                if (!tab.url.includes('mail.google.com')) {
+                    // navigate to Gmail starred emails
                     chrome.tabs.update({ url: 'https://mail.google.com/mail/u/0/#starred' });
                 } else {
-                    this.updateStatus('⚠️', 'Email extraction not yet implemented', 'error');
-                    this.extractBtn.disabled = true;
-                    this.extractOtlBtn.disabled = true;
+                    this.updateStatus('ℹ️', 'Choose an extraction format to begin', 'info');
+                    this.extractBtn.disabled = false;
+                    this.extractOtlBtn.disabled = false;
                 }
             }
         } catch (error) {
@@ -94,11 +94,20 @@ class PopupController {
                 
                 await this.handleExtractionResults(results, format, formatName);
             } else if (this.currentDataSource === 'email') {
-                throw new Error('Email extraction not yet implemented');
+                // Set up progress listener before injection
+                await this.setupEmailProgressListener(tab.id);
+                
+                // Inject and run the email extractor script
+                const results = await chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    files: ['src/email-extractor-injected.js']
+                });
+                
+                await this.handleEmailExtractionResults(results, format, formatName);
             }
         } catch (error) {
             console.error('Extraction error:', error);
-            this.updateStatus('❌', 'Failed to extract saved items. Please try again.', 'error');
+            this.updateStatus('❌', `Failed to extract: ${error.message}`, 'error');
         } finally {
             this.extractBtn.disabled = false;
             this.extractOtlBtn.disabled = false;
@@ -176,6 +185,61 @@ class PopupController {
         return markdown;
     }
 
+    convertEmailsToMarkdown(emails) {
+        if (!emails || emails.length <= 1) {
+            return '# Starred Emails\n\nNo starred emails found.';
+        }
+
+        let markdown = '# ⭐ Starred Emails Export\n\n';
+        markdown += `*Exported on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}*\n\n`;
+        
+        // Skip the header row
+        for (let i = 1; i < emails.length; i++) {
+            const email = emails[i];
+            if (email.length >= 2) {
+                const subject = email[0];
+                const url = email[1];
+                const sender = email[2] || '';
+                
+                markdown += `## Email ${i}\n\n`;
+                markdown += `**Subject:** ${subject}\n\n`;
+                if (sender && sender !== 'Unknown' && sender !== 'Sender not found') {
+                    markdown += `**From:** ${sender}\n\n`;
+                }
+                markdown += `**Link:** [View in Gmail](${url})\n\n`;
+                markdown += '---\n\n';
+            }
+        }
+        
+        return markdown;
+    }
+
+    convertEmailsToOtl(emails) {
+        if (!emails || emails.length <= 1) {
+            return 'Starred Emails\n\nNo starred emails found.';
+        }
+        
+        let otl = `Starred Emails Exported on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}\n\n`;
+        
+        // Skip the header row
+        for (let i = 1; i < emails.length; i++) {
+            const email = emails[i];
+            if (email.length >= 2) {
+                const subject = email[0];
+                const url = email[1];
+                const sender = email[2] || '';
+                
+                otl += `\t${subject}\n`;
+                if (sender && sender !== 'Unknown' && sender !== 'Sender not found') {
+                    otl += `\t\tFrom: ${sender}\n`;
+                }
+                otl += `\t\t${url}\n\n`;
+            }
+        }
+
+        return otl;
+    }
+
     displayResults(markdown, itemCount) {
         this.output.value = markdown;
         this.itemCount.textContent = `${itemCount} items`;
@@ -216,10 +280,57 @@ class PopupController {
         this.itemCount.textContent = `${current}/${total} (${percentage}%)`;
     }
 
+    async setupEmailProgressListener(tabId) {
+        // Inject a progress listener into the tab for email extraction
+        await chrome.scripting.executeScript({
+            target: { tabId },
+            func: () => {
+                // Set up event listener for email extraction progress updates
+                document.addEventListener('emailExtractionProgress', (event) => {
+                    // Send progress to extension
+                    chrome.runtime.sendMessage({
+                        type: 'emailExtractionProgress',
+                        data: event.detail
+                    });
+                });
+            }
+        });
+
+        // Listen for progress messages from the content script
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            if (message.type === 'emailExtractionProgress') {
+                this.updateProgress(message.data);
+            }
+        });
+    }
+
+    async handleEmailExtractionResults(results, format, formatName) {
+        if (results && results[0] && results[0].result) {
+            const extractionResults = results[0].result;
+            const emails = extractionResults.uniqueData || extractionResults; // Handle both new and old format
+            let output;
+            
+            if (format === 'otl') {
+                // Use the pre-formatted output if available, otherwise convert
+                output = extractionResults.formattedOutput || this.convertEmailsToOtl(emails);
+                this.outputTitle.textContent = 'OTL Output';
+            } else {
+                output = this.convertEmailsToMarkdown(emails);
+                this.outputTitle.textContent = 'Markdown Output';
+            }
+            
+            this.displayResults(output, emails.length - 1); // -1 for header row
+            this.updateStatus('✅', `Extraction completed successfully in ${formatName} format!`, 'success');
+        } else {
+            throw new Error('No results returned from email extractor');
+        }
+    }
+
     async copyToClipboard() {
         try {
             await navigator.clipboard.writeText(this.output.value);
-            this.updateStatus('📋', 'Markdown copied to clipboard!', 'success');
+            const formatName = this.currentFormat === 'otl' ? 'OTL' : 'Markdown';
+            this.updateStatus('📋', `${formatName} copied to clipboard!`, 'success');
             
             // Reset status after 2 seconds
             setTimeout(() => {
