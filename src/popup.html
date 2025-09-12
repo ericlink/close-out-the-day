@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Close Out The Day</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📋 Close Out The Day</h1>
+      <p>Export your Slack saved items & starred emails</p>
+    </header>
+    
+    <div class="controls">
+      <button id="extractBtn" class="btn-primary">
+        <span class="btn-icon">🔍</span>
+        Extract to Markdown
+      </button>
+      <button id="extractOtlBtn" class="btn-primary">
+        <span class="btn-icon">📝</span>
+        Extract to OTL
+      </button>
+    </div>
+    
+    <div class="controls">
+      <button id="copyBtn" class="btn-secondary" disabled>
+        <span class="btn-icon">📋</span>
+        Copy to Clipboard
+      </button>
+    </div>
+    
+    <div class="status" id="status">
+      <span class="status-icon">ℹ️</span>
+      <span class="status-text">Choose an extraction format to begin</span>
+    </div>
+    
+    <div class="output-section">
+      <div class="output-header">
+        <h3 id="outputTitle">Output</h3>
+        <span class="item-count" id="itemCount">0 items</span>
+      </div>
+      <textarea id="output" readonly placeholder="Your extracted saved items will appear here..."></textarea>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
