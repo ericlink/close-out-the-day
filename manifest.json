@@ -1,6 +1,6 @@
 {
-  "name": "zombie tab closer",
-  "description": "close those zombie tabs that were launched from links and are no longer needed (accept meeting, open slack link, etc.)",
+  "name": "close out the day",
+  "description": "close out the day by pulling all you slack saved items, and starred emails",
   "version": "0.0.1",
   "manifest_version": 3,
   "homepage_url": "https://github.com/ericlink",
@@ -17,10 +17,7 @@
     {
       "run_at": "document_start",
       "matches": [
-        "*://*.slack.com/archives/*",
-        "*://calendar.google.com/calendar/*",
-        "*://*.zoom.us/*",
-        "*://*.chime.aws/*"
+        "*://app.slack.com/client/*"
       ],
       "js": [
         "src/content.js"
