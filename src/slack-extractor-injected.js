@@ -174,7 +174,13 @@
             
             console.log('Number of bookmarks:', savedItemElements.length);
             
+            // Emit initial progress event
+            this.emitProgressEvent(0, savedItemElements.length, 'Starting extraction...');
+            
             for (let i = 0; i < savedItemElements.length; i++) {
+                // Emit progress before processing each bookmark
+                this.emitProgressEvent(i, savedItemElements.length, `Processing bookmark ${i + 1}/${savedItemElements.length}...`);
+                
                 const bookmark = await BookmarkProcessor.processBookmark(
                     savedItemElements[i], 
                     messageElements[i]
@@ -182,11 +188,18 @@
                 
                 this.allBookmarks.push(bookmark);
                 
+                // Emit progress after processing
+                const itemsExtracted = this.allBookmarks.length - 1; // -1 for header
+                this.emitProgressEvent(i + 1, savedItemElements.length, `Extracted ${itemsExtracted} items...`);
+                
                 // Wait between iterations
                 if (i < savedItemElements.length - 1) {
                     await Utils.sleep(CONFIG.TIMING.BEFORE_LOOP);
                 }
             }
+            
+            // Emit final processing event
+            this.emitProgressEvent(savedItemElements.length, savedItemElements.length, 'Processing results...');
             
             // Process final results
             await this.finalize();
@@ -200,6 +213,21 @@
             
             this.uniqueBookmarks = Utils.dedupe(this.allBookmarks);
             console.log(Utils.arrayToOtl(this.uniqueBookmarks));
+        }
+
+        /**
+         * Emit progress event for real-time updates
+         */
+        emitProgressEvent(current, total, message) {
+            const event = new CustomEvent('slackExtractionProgress', {
+                detail: {
+                    current,
+                    total,
+                    message,
+                    percentage: Math.round((current / total) * 100)
+                }
+            });
+            document.dispatchEvent(event);
         }
 
         /**

@@ -51,8 +51,12 @@ class PopupController {
             
             const formatName = format === 'otl' ? 'OTL' : 'Markdown';
             this.updateStatus('⏳', `Extracting saved items to ${formatName}...`, 'loading');
+            this.itemCount.textContent = '0 items';
 
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            
+            // Set up progress listener before injection
+            await this.setupProgressListener(tab.id);
             
             // Inject and run the extractor script
             const results = await chrome.scripting.executeScript({
@@ -142,6 +146,40 @@ class PopupController {
         this.output.value = markdown;
         this.itemCount.textContent = `${itemCount} items`;
         this.copyBtn.disabled = false;
+    }
+
+    async setupProgressListener(tabId) {
+        // Inject a progress listener into the tab
+        await chrome.scripting.executeScript({
+            target: { tabId },
+            func: () => {
+                // Set up event listener for progress updates
+                document.addEventListener('slackExtractionProgress', (event) => {
+                    // Send progress to extension
+                    chrome.runtime.sendMessage({
+                        type: 'extractionProgress',
+                        data: event.detail
+                    });
+                });
+            }
+        });
+
+        // Listen for progress messages from the content script
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            if (message.type === 'extractionProgress') {
+                this.updateProgress(message.data);
+            }
+        });
+    }
+
+    updateProgress(progressData) {
+        const { current, total, message, percentage } = progressData;
+        
+        // Update status with progress message
+        this.updateStatus('⏳', message, 'loading');
+        
+        // Update item count with current progress
+        this.itemCount.textContent = `${current}/${total} (${percentage}%)`;
     }
 
     async copyToClipboard() {
