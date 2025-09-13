@@ -21,15 +21,37 @@ class PopupController {
     }
 
     initEventListeners() {
-        this.extractBtn.addEventListener('click', () => this.extractSavedItems('markdown'));
-        this.extractOtlBtn.addEventListener('click', () => this.extractSavedItems('otl'));
-        this.copyBtn.addEventListener('click', () => this.copyToClipboard());
+        this.extractBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.extractSavedItems('markdown');
+        });
+        this.extractOtlBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.extractSavedItems('otl');
+        });
+        this.copyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.copyToClipboard();
+        });
         
         // Listen for data source changes
         this.dataSourceRadios.forEach(radio => {
             radio.addEventListener('change', (e) => {
                 this.currentDataSource = e.target.value;
                 this.checkActiveTab();
+            });
+        });
+        
+        // Prevent popup dismissal on Mac when clicking radio labels
+        const radioLabels = document.querySelectorAll('.radio-option');
+        radioLabels.forEach(label => {
+            label.addEventListener('click', (e) => {
+                e.preventDefault();
+                const radio = label.querySelector('input[type="radio"]');
+                if (radio && !radio.checked) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
+                }
             });
         });
     }
