@@ -9,10 +9,11 @@
      */
     const CONFIG = {
         TIMING: {
-            BEFORE_START: 2000,
-            BEFORE_LOOP: 1800,
+            BEFORE_START: 500,
+            BEFORE_LOOP: 500,
+            AFTER_CLICK: 300,
             get AFTER_FINISHED() { return this.BEFORE_START; },
-            get AFTER_ELEMENT_CLICKED() { return this.BEFORE_LOOP - 1000; }
+            get AFTER_ELEMENT_CLICKED() { return this.BEFORE_LOOP - this.AFTER_CLICK; }
         },
         ZOOM_LEVEL: 0.05,
         SELECTORS: {
@@ -132,7 +133,7 @@
             await Utils.sleep(CONFIG.TIMING.AFTER_ELEMENT_CLICKED);
             
             // Extract later items
-            const laterElements = document.querySelectorAll(CONFIG.SELECTORS.LATER_ITEMS);
+            let  laterElements = document.querySelectorAll(CONFIG.SELECTORS.LATER_ITEMS);
             
             for (const laterElement of laterElements) {
                 const { msg, href, timestamp } = BookmarkProcessor.extractFromLaterElement(laterElement);
@@ -189,10 +190,18 @@
                 // Emit progress before processing each bookmark
                 this.emitProgressEvent(i, savedItemElements.length, `Processing bookmark ${i + 1}/${savedItemElements.length}...`);
                 
-                const bookmark = await BookmarkProcessor.processBookmark(
+                let bookmark = await BookmarkProcessor.processBookmark(
                     savedItemElements[i], 
                     messageElements[i]
                 );
+                // if no later elements, wait for 1000ms and tryagain
+                if (bookmark.length === 0) {
+                    await Utils.sleep(CONFIG.TIMING.BEFORE_START);
+                    bookmark = await BookmarkProcessor.processBookmark(
+                        savedItemElements[i], 
+                        messageElements[i]
+                    );
+                }
                 
                 this.allBookmarks.push(bookmark);
                 
