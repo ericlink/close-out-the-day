@@ -215,7 +215,6 @@ header p {
 }
 
 .output-section {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -241,33 +240,6 @@ header p {
   border-radius: 10px;
 }
 
-#output {
-  flex: 1;
-  min-height: 250px;
-  max-height: 300px;
-  padding: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 11px;
-  line-height: 1.5;
-  background: #f9fafb;
-  color: #374151;
-  resize: vertical;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-#output:focus {
-  outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 1px #4f46e5;
-}
-
-#output::placeholder {
-  color: #9ca3af;
-  font-style: italic;
-}
 
 /* Loading animation */
 .loading .status-icon {
@@ -279,21 +251,3 @@ header p {
   to { transform: rotate(360deg); }
 }
 
-/* Scrollbar styling */
-#output::-webkit-scrollbar {
-  width: 6px;
-}
-
-#output::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-#output::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-#output::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
-}

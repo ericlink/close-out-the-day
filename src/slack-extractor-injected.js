@@ -10,7 +10,7 @@
     const CONFIG = {
         TIMING: {
             BEFORE_START: 2000,
-            BEFORE_LOOP: 3000,
+            BEFORE_LOOP: 1800,
             get AFTER_FINISHED() { return this.BEFORE_START; },
             get AFTER_ELEMENT_CLICKED() { return this.BEFORE_LOOP - 1000; }
         },
@@ -109,7 +109,14 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(laterElement.innerHTML, 'text/html');
             const href = doc.querySelector(CONFIG.SELECTORS.ARCHIVE_LINKS)?.getAttribute('href');
-            return { msg, href };
+            let timestamp = doc.querySelector(CONFIG.SELECTORS.ARCHIVE_LINKS)?.getAttribute('aria-label');
+            // substitute today's date for "Today"
+            timestamp = timestamp.replace('Today', new Date().toLocaleDateString());
+            // substitute yesterday's date for "Yesterday" (date -24h)
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            timestamp = timestamp.replace('Yesterday', yesterday.toLocaleDateString());
+            return { msg, href, timestamp };
         },
 
         /**
@@ -128,10 +135,11 @@
             const laterElements = document.querySelectorAll(CONFIG.SELECTORS.LATER_ITEMS);
             
             for (const laterElement of laterElements) {
-                const { msg, href } = BookmarkProcessor.extractFromLaterElement(laterElement);
+                const { msg, href, timestamp } = BookmarkProcessor.extractFromLaterElement(laterElement);
                 if (msg && href) {
                     bookmark.push(msg);
                     bookmark.push(href);
+                    bookmark.push(timestamp);
                 }
             }
             

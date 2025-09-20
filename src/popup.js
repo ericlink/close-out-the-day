@@ -5,7 +5,6 @@ class PopupController {
         this.extractBtn = document.getElementById('extractBtn');
         this.extractOtlBtn = document.getElementById('extractOtlBtn');
         this.copyBtn = document.getElementById('copyBtn');
-        this.output = document.getElementById('output');
         this.status = document.getElementById('status');
         this.statusText = document.querySelector('.status-text');
         this.statusIcon = document.querySelector('.status-icon');
@@ -15,6 +14,7 @@ class PopupController {
         
         this.currentFormat = 'markdown'; // Track current output format
         this.currentDataSource = 'slack'; // Track current data source
+        this.currentOutput = ''; // Store the current output for copying
         
         this.initEventListeners();
         this.checkActiveTab();
@@ -263,7 +263,7 @@ class PopupController {
     }
 
     displayResults(markdown, itemCount) {
-        this.output.value = markdown;
+        this.currentOutput = markdown;
         this.itemCount.textContent = `${itemCount} items`;
         this.copyBtn.disabled = false;
     }
@@ -350,7 +350,7 @@ class PopupController {
 
     async copyToClipboard() {
         try {
-            await navigator.clipboard.writeText(this.output.value);
+            await navigator.clipboard.writeText(this.currentOutput);
             const formatName = this.currentFormat === 'otl' ? 'OTL' : 'Markdown';
             this.updateStatus('📋', `${formatName} copied to clipboard!`, 'success');
             
